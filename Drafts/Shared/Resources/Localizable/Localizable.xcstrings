@@ -1,0 +1,54 @@
+{
+  "sourceLanguage" : "es",
+  "strings" : {
+    "" : {
+
+    },
+    "%@" : {
+
+    },
+    "Add Product" : {
+
+    },
+    "Add Review" : {
+
+    },
+    "Author: %@" : {
+
+    },
+    "Create Draft" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Drafts list:" : {
+
+    },
+    "No drafts" : {
+
+    },
+    "Price: %@ €" : {
+
+    },
+    "Productos" : {
+
+    },
+    "Products" : {
+
+    },
+    "Rating: %lld" : {
+
+    },
+    "Reseñas" : {
+
+    },
+    "Reviews" : {
+
+    },
+    "Update Drafts" : {
+
+    }
+  },
+  "version" : "1.0"
+}

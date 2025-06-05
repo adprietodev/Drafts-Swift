@@ -1,0 +1,15 @@
+//
+//  ProductsUseCaseProtocol.swift
+//  Drafts
+//
+//  Created by Adrián Prieto Villena on 5/6/25.
+//  Copyright © 2025 Rudo Apps. All rights reserved.
+//
+
+import Foundation
+
+protocol ProductsUseCaseProtocol {
+    func getDrafts() throws -> [Product]
+    func save(_ product: inout Product) throws
+    func remove(_ product: Product) throws 
+}
