@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct LocalReviewDTO: DraftDTOProtocol {
+struct LocalReviewDTO: Draftable {
     var id: UUID
 
     var title: String

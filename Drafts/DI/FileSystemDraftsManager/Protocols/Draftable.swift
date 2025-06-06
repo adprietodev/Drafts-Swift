@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol DraftDTOProtocol: Codable, Identifiable {
+protocol Draftable: Codable, Identifiable {
     var id: UUID { get }
 }

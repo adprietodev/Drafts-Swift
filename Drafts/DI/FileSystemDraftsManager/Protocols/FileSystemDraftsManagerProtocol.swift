@@ -9,9 +9,9 @@
 import Foundation
 
 protocol FileSystemDraftsManagerProtocol {
-    func save<T: DraftDTOProtocol>(_ draft: T, with type: T.Type) throws
-    func getAllDrafts<T: DraftDTOProtocol>(with type: T.Type) throws -> [T]
-    func getDraft<T: DraftDTOProtocol>(with id: UUID, with type: T.Type) throws -> T
-    func removeDraft<T: DraftDTOProtocol>(with id: UUID, with type: T.Type) throws
-    func buildFolderInsideDraftFolder<T: DraftDTOProtocol>(with name: String, with type: T.Type) throws -> URL
+    func save<T: Draftable>(_ draft: T, with type: T.Type) throws
+    func getAllDrafts<T: Draftable>(with type: T.Type) throws -> [T]
+    func getDraft<T: Draftable>(with id: UUID, with type: T.Type) throws -> T
+    func removeDraft<T: Draftable>(with id: UUID, with type: T.Type) throws
+    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, with type: T.Type) throws -> URL
 }

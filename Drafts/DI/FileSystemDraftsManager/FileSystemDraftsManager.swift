@@ -18,7 +18,7 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
     }
 
     // MARK: - Functions
-    func save<T: DraftDTOProtocol>(_ draft: T, with type: T.Type) throws {
+    func save<T: Draftable>(_ draft: T, with type: T.Type) throws {
         var drafts = try getAllDrafts(with: type)
 
         if drafts.contains(where: { $0.id == draft.id }) {
@@ -30,7 +30,7 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
         }
     }
 
-    func getAllDrafts<T: DraftDTOProtocol>(with type: T.Type) throws -> [T] {
+    func getAllDrafts<T: Draftable>(with type: T.Type) throws -> [T] {
         let fileURL = try buildDraftFileURL(with: type)
 
         if !fileManager.fileExists(atPath: fileURL.path) {
@@ -51,7 +51,7 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
         }
     }
 
-    func getDraft<T: DraftDTOProtocol>(with id: UUID, with type: T.Type) throws -> T {
+    func getDraft<T: Draftable>(with id: UUID, with type: T.Type) throws -> T {
         let drafts = try getAllDrafts(with: type)
         guard let draft = drafts.first(where: { $0.id == id }) else {
             throw LocalError.failureLoad
@@ -59,7 +59,7 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
         return draft
     }
 
-    func removeDraft<T: DraftDTOProtocol>(with id: UUID, with type: T.Type) throws {
+    func removeDraft<T: Draftable>(with id: UUID, with type: T.Type) throws {
         var drafts = try getAllDrafts(with: type)
         guard let index = drafts.firstIndex(where: { $0.id == id }) else {
             print("❌ 📄 Failure draft not found with id: \(id)")
@@ -71,7 +71,7 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
         try updateAll(drafts, with: type)
     }
 
-    func buildFolderInsideDraftFolder<T: DraftDTOProtocol>(with name: String, with type: T.Type) throws -> URL {
+    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, with type: T.Type) throws -> URL {
         let draftFolder = try buildDraftFolderURLInDocuments(with: type)
         let newFolder = draftFolder.appendingPathComponent(name)
 
@@ -85,14 +85,14 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
 
 // MARK: - Private extension
 private extension FileSystemDraftsManager {
-    func update<T: DraftDTOProtocol>(draft: T, at drafts: inout [T], with type: T.Type) throws {
+    func update<T: Draftable>(draft: T, at drafts: inout [T], with type: T.Type) throws {
         try removeDraft(with: draft.id, with: type)
         drafts.append(draft)
         try updateAll(drafts, with: type)
         print("✅ 📄 Update succesfull draft \(type)")
     }
 
-    func add<T: DraftDTOProtocol>(draft: T, at drafts: inout [T], with type: T.Type) throws {
+    func add<T: Draftable>(draft: T, at drafts: inout [T], with type: T.Type) throws {
         drafts.append(draft)
         try updateAll(drafts, with: type)
         print("✅ 📄 Add succesfull draft \(type)")
@@ -106,7 +106,7 @@ private extension FileSystemDraftsManager {
         }
     }
 
-    func buildDraftFolderURLInDocuments<T: DraftDTOProtocol>(with type: T.Type) throws -> URL {
+    func buildDraftFolderURLInDocuments<T: Draftable>(with type: T.Type) throws -> URL {
         let draftFolder = try buildDraftFolder(with: String(describing: T.self))
 
         guard let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
@@ -129,7 +129,7 @@ private extension FileSystemDraftsManager {
         return "\(bundle)/Drafts_\(draftName)"
     }
 
-    func updateAll<T: DraftDTOProtocol>(_ drafts: [T], with type: T.Type) throws {
+    func updateAll<T: Draftable>(_ drafts: [T], with type: T.Type) throws {
         let fileURL = try buildDraftFileURL(with: type)
 
         guard !drafts.isEmpty else {
@@ -161,7 +161,7 @@ private extension FileSystemDraftsManager {
         try fileManager.removeItem(at: file)
     }
 
-    func buildDraftFileURL<T: DraftDTOProtocol>(with type: T.Type) throws -> URL {
+    func buildDraftFileURL<T: Draftable>(with type: T.Type) throws -> URL {
         let draftFilename = "drafts.json"
         let draftFolder = try buildDraftFolderURLInDocuments(with: type)
         return draftFolder.appendingPathComponent(draftFilename)
