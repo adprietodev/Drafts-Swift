@@ -13,4 +13,9 @@ protocol ProductsRepositoryProtocol {
     func save(_ product: Product) throws
     func remove(_ product: Product) throws
     func buildImageFolder(with name: String) throws -> URL
+
+    func getDrafts(by userID: Int) throws -> [Product]
+    func save(_ product: Product, at userID: Int) throws
+    func remove(_ product: Product, at userID: Int) throws
+    func buildImageFolder(with name: String, at userID: Int) throws -> URL
 }

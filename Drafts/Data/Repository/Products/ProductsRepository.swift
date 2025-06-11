@@ -34,6 +34,23 @@ class ProductsRepository: ProductsRepositoryProtocol {
     func buildImageFolder(with name: String) throws -> URL {
         try localDataSource.buildImageFolder(with: name)
     }
+
+    func getDrafts(by userID: Int) throws -> [Product] {
+        let productsDTO = try localDataSource.getDrafts(by: userID)
+        return productsDTO.map { $0.toDomain() }
+    }
+
+    func save(_ product: Product, at userID: Int) throws {
+        try localDataSource.save(product.toDTO(), at: userID)
+    }
+
+    func remove(_ product: Product, at userID: Int) throws {
+        try localDataSource.remove(product.toDTO(), at: userID)
+    }
+
+    func buildImageFolder(with name: String, at userID: Int) throws -> URL {
+        try localDataSource.buildImageFolder(with: name, at: userID)
+    }
 }
 
 // MARK: - Mappers

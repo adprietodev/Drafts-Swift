@@ -35,4 +35,20 @@ class LocalProductsDataSource: LocalProductsDataSourceProtocol {
     func buildImageFolder(with name: String) throws -> URL {
         try draftManager.buildFolderInsideDraftFolder(with: name, with: type)
     }
+
+    func getDrafts(by userID: Int) throws -> [LocalProductDTO] {
+        try draftManager.getAllDrafts(with: type, and: userID)
+    }
+
+    func save(_ product: LocalProductDTO, at userID: Int) throws {
+        try draftManager.save(product, with: type, and: userID)
+    }
+
+    func remove(_ product: LocalProductDTO, at userID: Int) throws {
+        try draftManager.removeDraft(with: product.id, with: type, and: userID)
+    }
+
+    func buildImageFolder(with name: String, at userID: Int) throws -> URL {
+        try draftManager.buildFolderInsideDraftFolder(with: name, with: type, and: userID)
+    }
 }

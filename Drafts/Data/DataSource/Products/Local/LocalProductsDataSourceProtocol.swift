@@ -13,4 +13,9 @@ protocol LocalProductsDataSourceProtocol {
     func save(_ product: LocalProductDTO) throws
     func remove(_ product: LocalProductDTO) throws
     func buildImageFolder(with name: String) throws -> URL
+
+    func getDrafts(by userID: Int) throws -> [LocalProductDTO]
+    func save(_ product: LocalProductDTO, at userID: Int) throws
+    func remove(_ product: LocalProductDTO, at userID: Int) throws
+    func buildImageFolder(with name: String, at userID: Int) throws -> URL
 }

@@ -14,4 +14,10 @@ protocol FileSystemDraftsManagerProtocol {
     func getDraft<T: Draftable>(with id: UUID, with type: T.Type) throws -> T
     func removeDraft<T: Draftable>(with id: UUID, with type: T.Type) throws
     func buildFolderInsideDraftFolder<T: Draftable>(with name: String, with type: T.Type) throws -> URL
+
+    func save<T: Draftable>(_ draft: T, with type: T.Type, and userID: Int) throws
+    func getAllDrafts<T: Draftable>(with type: T.Type, and userID: Int) throws -> [T]
+    func getDraft<T: Draftable>(with id: UUID, with type: T.Type, and userID: Int) throws -> T
+    func removeDraft<T: Draftable>(with id: UUID, with type: T.Type, and userID: Int) throws
+    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, with type: T.Type, and userID: Int) throws -> URL
 }

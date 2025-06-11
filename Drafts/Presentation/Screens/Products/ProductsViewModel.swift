@@ -13,6 +13,7 @@ class ProductsViewModel: ObservableObject {
     private let productUseCase: ProductsUseCaseProtocol
     @Published var drafts = [Product]()
     @Published var product: Product
+    @Published var isByUser = false
 
     // MARK: - Init
     init(productUseCase: ProductsUseCaseProtocol) {
@@ -34,7 +35,7 @@ class ProductsViewModel: ObservableObject {
 
     func saveDraft() {
         do {
-            try productUseCase.save(&product)
+            isByUser ? try productUseCase.save(&product, by: 1) : try productUseCase.save(&product)
         } catch {
             print("❌ ❌ Error: \(error.localizedDescription) ")
         }
@@ -43,7 +44,7 @@ class ProductsViewModel: ObservableObject {
     @MainActor
     func getDrafts() {
         do {
-            drafts = try productUseCase.getDrafts()
+            drafts = isByUser ? try productUseCase.getDrafts(by: 1) : try productUseCase.getDrafts()
         } catch {
             print("❌ ❌ Error: \(error.localizedDescription) ")
         }
@@ -52,7 +53,7 @@ class ProductsViewModel: ObservableObject {
     @MainActor
     func removeDraft(at product: Product) {
         do {
-            try productUseCase.remove(product)
+            isByUser ? try productUseCase.remove(product, by: 1) : try productUseCase.remove(product)
 
             guard let index = drafts.firstIndex(where: { $0.draftID == product.draftID}) else { return }
             drafts.remove(at: index)

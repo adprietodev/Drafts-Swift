@@ -14,6 +14,9 @@ struct ProductsView: View {
 
     var body: some View {
         VStack(spacing: 24) {
+            Toggle(isOn: $viewModel.isByUser, label: {
+                Text(viewModel.isByUser ? "With user" : "Without user")
+            })
             HStack {
                 Text("Add Product")
                     .padding(16)
