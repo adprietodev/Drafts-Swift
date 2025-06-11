@@ -10,8 +10,8 @@ import Foundation
 
 class ReviewsBuilder {
     static func build() -> ReviewsView {
-        let reviewUseCase = ReviewsContainer().makeUseCase()
-        let viewModel = ReviewsViewModel(reviewUseCase: reviewUseCase)
+        let reviewsWithImagesUseCase = ReviewsWithImagesContainer.makeUseCase()
+        let viewModel = ReviewsViewModel(reviewsWithImagesUseCase: reviewsWithImagesUseCase)
         return ReviewsView(viewModel: viewModel)
     }
 }

@@ -11,66 +11,42 @@ import Foundation
 class ProductsUseCase: ProductsUseCaseProtocol {
     // MARK: - Properties
     private let repository: ProductsRepositoryProtocol
-    private let imageUseCase: ImageUseCaseProtocol
-
+    
     // MARK: - Init
-    init(repository: ProductsRepositoryProtocol, imageUseCase: ImageUseCaseProtocol) {
+    init(repository: ProductsRepositoryProtocol) {
         self.repository = repository
-        self.imageUseCase = imageUseCase
     }
-
+    
     // MARK: - Functions
     func getDrafts() throws -> [Product] {
-        var products = try repository.getDrafts()
-
-        try products.enumerated().forEach { index, product in
-            products[index].imageData = try imageUseCase.loadImage(with: product.imagePath)
-        }
-
-        return products
+        try repository.getDrafts()
     }
-
-    func save(_ product: inout Product) throws {
-        let imageFolder = try repository.buildImageFolder(with: "\(Constants.Image.folderName)\(product.draftID)")
-        let imagePath = try imageUseCase.buildImagePath(product.imageData, in: imageFolder, with: "product", imageExtension: .jpg)
-
-        product.imagePath = imagePath
-
+    
+    func save(_ product: Product) throws {
         try repository.save(product)
     }
-
+    
     func remove(_ product: Product) throws {
-        if let imagePath = product.imagePath {
-            try imageUseCase.removeImage(with: imagePath)
-        }
-
         try repository.remove(product)
     }
-
-    func getDrafts(by userID: Int) throws -> [Product] {
-        var products = try repository.getDrafts(by: userID)
-
-        try products.enumerated().forEach { index, product in
-            products[index].imageData = try imageUseCase.loadImage(with: product.imagePath)
-        }
-
-        return products
+    
+    func buildImageFolder(with name: String) throws -> URL {
+        try repository.buildImageFolder(with: name)
     }
-
-    func save(_ product: inout Product, by userID: Int) throws {
-        let imageFolder = try repository.buildImageFolder(with: "\(Constants.Image.folderName)\(product.draftID)", at: userID)
-        let imagePath = try imageUseCase.buildImagePath(product.imageData, in: imageFolder, with: "product", imageExtension: .jpg)
-
-        product.imagePath = imagePath
-
+    
+    func getDrafts(by userID: Int) throws -> [Product] {
+        try repository.getDrafts(by: userID)
+    }
+    
+    func save(_ product: Product, by userID: Int) throws {
         try repository.save(product, at: userID)
     }
-
+    
     func remove(_ product: Product, by userID: Int) throws {
-        if let imagePath = product.imagePath {
-            try imageUseCase.removeImage(with: imagePath)
-        }
-
         try repository.remove(product, at: userID)
+    }
+    
+    func buildImageFolder(with name: String, by userID: Int) throws -> URL {
+        try repository.buildImageFolder(with: name, at: userID)
     }
 }

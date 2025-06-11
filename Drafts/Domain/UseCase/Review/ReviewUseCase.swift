@@ -10,37 +10,24 @@ import Foundation
 
 class ReviewUseCase: ReviewUseCaseProtocol {
     private let repository: ReviewRepositoryProtocol
-    private let imageUseCase: ImageUseCaseProtocol
 
-    init(repository: ReviewRepositoryProtocol, imageUseCase: ImageUseCaseProtocol) {
+    init(repository: ReviewRepositoryProtocol) {
         self.repository = repository
-        self.imageUseCase = imageUseCase
     }
 
     func getDrafts() throws -> [Review] {
-        var reviews = try repository.getDrafts()
-
-        try reviews.enumerated().forEach { index, review in
-            reviews[index].imageData = try imageUseCase.loadImage(with: review.imagePath)
-        }
-
-        return reviews
+        try repository.getDrafts()
     }
 
-    func save(_ review: inout Review) throws {
-        let imageFolder = try repository.buildImageFolder(with: "\(Constants.Image.folderName)\(review.draftID)")
-        let imagePath = try imageUseCase.buildImagePath(review.imageData, in: imageFolder, with: "review", imageExtension: .jpg)
-
-        review.imagePath = imagePath
-
+    func save(_ review: Review) throws {
         try repository.save(review)
     }
 
     func remove(_ review: Review) throws {
-        if let imagePath = review.imagePath {
-            try imageUseCase.removeImage(with: imagePath)
-        }
-
         try repository.remove(with: review.draftID)
+    }
+
+    func buildImageFolder(with name: String) throws -> URL {
+        try repository.buildImageFolder(with: name)
     }
 }

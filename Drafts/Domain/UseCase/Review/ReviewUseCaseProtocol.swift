@@ -10,6 +10,7 @@ import Foundation
 
 protocol ReviewUseCaseProtocol {
     func getDrafts() throws -> [Review]
-    func save(_ review: inout Review) throws
+    func save(_ review: Review) throws
     func remove(_ review: Review) throws
+    func buildImageFolder(with name: String) throws -> URL
 }

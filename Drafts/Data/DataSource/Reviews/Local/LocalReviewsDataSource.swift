@@ -29,10 +29,10 @@ class LocalReviewsDataSource: LocalReviewsDataSourceProtocol {
     }
 
     func remove(with id: UUID) throws {
-        try draftManager.removeDraft(with: id, with: type)
+        try draftManager.removeDraft(with: id, of: type)
     }
 
     func buildImageFolder(with name: String) throws -> URL {
-        try draftManager.buildFolderInsideDraftFolder(with: name, with: type)
+        try draftManager.buildFolderInsideDraftFolder(with: name, of: type)
     }
 }

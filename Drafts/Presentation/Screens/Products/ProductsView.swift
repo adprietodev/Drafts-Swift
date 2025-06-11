@@ -61,8 +61,13 @@ struct ProductsView: View {
 
     @ViewBuilder
     var draftList: some View {
-        ForEach(viewModel.drafts, id: \.draftID) { draft in
-            draftInfo(draft)
+        LazyVStack(spacing: 8) {
+            ForEach(viewModel.drafts, id: \.draftID) { draft in
+                draftInfo(draft)
+                    .background(Color.white)
+                    .cornerRadius(8)
+                    .shadow(radius: 1)
+            }
         }
     }
 
@@ -146,17 +151,23 @@ struct ProductsView: View {
     }
 
     @ViewBuilder
-    func draftInfo(_ product: Product) -> some View{
+    func draftInfo(_ product: Product) -> some View {
         HStack(spacing: 16) {
             if let imageData = product.imageData,
                let image = UIImage(data: imageData) {
-                Image(uiImage: image )
+                Image(uiImage: image)
                     .clipShape(.circle)
             }
             Text(product.name)
+            Spacer()
         }
-        .swipeActions(edge: .trailing) {
-            deleteDraftAction(at: product)
+        .padding()
+        .contextMenu {
+            Button(role: .destructive) {
+                viewModel.removeDraft(at: product)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
         }
     }
 

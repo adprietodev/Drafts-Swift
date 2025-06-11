@@ -10,14 +10,14 @@ import Foundation
 
 class ProductsViewModel: ObservableObject {
     // MARK: - Properties
-    private let productUseCase: ProductsUseCaseProtocol
+    private let productWithImagesUseCase: ProductsWithImagesUseCaseProtocol
     @Published var drafts = [Product]()
     @Published var product: Product
     @Published var isByUser = false
 
     // MARK: - Init
-    init(productUseCase: ProductsUseCaseProtocol) {
-        self.productUseCase = productUseCase
+    init(productWithImagesUseCase: ProductsWithImagesUseCaseProtocol) {
+        self.productWithImagesUseCase = productWithImagesUseCase
         self.product = .randomMockProduct()
     }
 
@@ -34,7 +34,7 @@ class ProductsViewModel: ObservableObject {
 
     func saveDraft() {
         do {
-            isByUser ? try productUseCase.save(&product, by: 1) : try productUseCase.save(&product)
+            isByUser ? try productWithImagesUseCase.save(&product, by: 1) : try productWithImagesUseCase.save(&product)
         } catch {
             print("❌ ❌ Error: \(error.localizedDescription) ")
         }
@@ -43,7 +43,7 @@ class ProductsViewModel: ObservableObject {
     @MainActor
     func getDrafts() {
         do {
-            drafts = isByUser ? try productUseCase.getDrafts(by: 1) : try productUseCase.getDrafts()
+            drafts = isByUser ? try productWithImagesUseCase.getDrafts(by: 1) : try productWithImagesUseCase.getDrafts()
         } catch {
             print("❌ ❌ Error: \(error.localizedDescription) ")
         }
@@ -52,7 +52,7 @@ class ProductsViewModel: ObservableObject {
     @MainActor
     func removeDraft(at product: Product) {
         do {
-            isByUser ? try productUseCase.remove(product, by: 1) : try productUseCase.remove(product)
+            isByUser ? try productWithImagesUseCase.remove(product, by: 1) : try productWithImagesUseCase.remove(product)
 
             guard let index = drafts.firstIndex(where: { $0.draftID == product.draftID}) else { return }
             drafts.remove(at: index)

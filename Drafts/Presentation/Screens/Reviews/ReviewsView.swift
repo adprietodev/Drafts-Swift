@@ -58,9 +58,14 @@ struct ReviewsView: View {
 
     @ViewBuilder
     var draftList: some View {
-        ForEach(viewModel.drafts, id: \.draftID) { draft in
-            draftInfo(draft)
-        }
+        LazyVStack(spacing: 8) {
+                ForEach(viewModel.drafts, id: \.draftID) { draft in
+                    draftInfo(draft)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .shadow(radius: 1)
+                }
+            }
     }
 
     @ViewBuilder
@@ -143,20 +148,23 @@ struct ReviewsView: View {
     }
 
     @ViewBuilder
-    func draftInfo(_ review: Review) -> some View{
+    func draftInfo(_ review: Review) -> some View {
         HStack(spacing: 16) {
             if let imageData = review.imageData,
                let image = UIImage(data: imageData) {
-                Image(uiImage: image )
+                Image(uiImage: image)
                     .clipShape(.circle)
             }
-            VStack(alignment: .leading, spacing: 24){
-                Text("Author: \(review.authorName)")
-                Text(review.title)
-            }
+            Text(review.title)
+            Spacer()
         }
-        .swipeActions(edge: .trailing) {
-            deleteDraftAction(at: review)
+        .padding()
+        .contextMenu {
+            Button(role: .destructive) {
+                viewModel.removeDraft(at: review)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
         }
     }
 

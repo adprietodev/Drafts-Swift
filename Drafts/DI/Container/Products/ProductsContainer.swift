@@ -12,7 +12,6 @@ class ProductsContainer {
     func makeUseCase() -> ProductsUseCase {
         let localDataSource = LocalProductsDataSource(draftManager: FileSystemDraftsManager())
         let repository = ProductsRepository(localDataSource: localDataSource)
-        let imageUseCase = ImagesContainer().makeUseCase()
-        return ProductsUseCase(repository: repository, imageUseCase: imageUseCase)
+        return ProductsUseCase(repository: repository)
     }
 }

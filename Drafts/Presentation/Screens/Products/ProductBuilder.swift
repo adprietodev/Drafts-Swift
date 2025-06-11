@@ -10,8 +10,8 @@ import Foundation
 
 class ProductBuilder {
     static func build() -> ProductsView {
-        let productUseCase = ProductsContainer().makeUseCase()
-        let viewModel = ProductsViewModel(productUseCase: productUseCase)
+        let productsWithImagesUseCase = ProductsWithImagesContainer.makeUseCase()
+        let viewModel = ProductsViewModel(productWithImagesUseCase: productsWithImagesUseCase)
         return ProductsView(viewModel: viewModel)
     }
 }

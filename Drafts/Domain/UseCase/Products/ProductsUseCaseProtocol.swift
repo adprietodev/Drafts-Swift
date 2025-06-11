@@ -10,10 +10,12 @@ import Foundation
 
 protocol ProductsUseCaseProtocol {
     func getDrafts() throws -> [Product]
-    func save(_ product: inout Product) throws
+    func save(_ product: Product) throws
     func remove(_ product: Product) throws
+    func buildImageFolder(with name: String) throws -> URL
 
     func getDrafts(by userID: Int) throws -> [Product]
-    func save(_ product: inout Product, by userID: Int) throws
+    func save(_ product: Product, by userID: Int) throws
     func remove(_ product: Product, by userID: Int) throws
+    func buildImageFolder(with name: String, by userID: Int) throws -> URL 
 }

@@ -29,11 +29,11 @@ class LocalProductsDataSource: LocalProductsDataSourceProtocol {
     }
 
     func remove(_ product: LocalProductDTO) throws {
-        try draftManager.removeDraft(with: product.id, with: type)
+        try draftManager.removeDraft(with: product.id, of: type)
     }
 
     func buildImageFolder(with name: String) throws -> URL {
-        try draftManager.buildFolderInsideDraftFolder(with: name, with: type)
+        try draftManager.buildFolderInsideDraftFolder(with: name, of: type)
     }
 
     func getDrafts(by userID: Int) throws -> [LocalProductDTO] {
@@ -45,10 +45,10 @@ class LocalProductsDataSource: LocalProductsDataSourceProtocol {
     }
 
     func remove(_ product: LocalProductDTO, at userID: Int) throws {
-        try draftManager.removeDraft(with: product.id, with: type, and: userID)
+        try draftManager.removeDraft(with: product.id, of: type, and: userID)
     }
 
     func buildImageFolder(with name: String, at userID: Int) throws -> URL {
-        try draftManager.buildFolderInsideDraftFolder(with: name, with: type, and: userID)
+        try draftManager.buildFolderInsideDraftFolder(with: name, of: type, and: userID)
     }
 }

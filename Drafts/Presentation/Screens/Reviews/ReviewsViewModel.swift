@@ -10,13 +10,13 @@ import Foundation
 
 class ReviewsViewModel: ObservableObject {
     // MARK: - Properties
-    private let reviewUseCase: ReviewUseCaseProtocol
+    private let reviewsWithImagesUseCase: ReviewsWithImagesUseCaseProtocol
     @Published var drafts = [Review]()
     @Published var review: Review
 
     // MARK: - Init
-    init(reviewUseCase: ReviewUseCaseProtocol) {
-        self.reviewUseCase = reviewUseCase
+    init(reviewsWithImagesUseCase: ReviewsWithImagesUseCaseProtocol) {
+        self.reviewsWithImagesUseCase = reviewsWithImagesUseCase
         self.review = .randomMockReview()
     }
 
@@ -34,7 +34,7 @@ class ReviewsViewModel: ObservableObject {
 
     func saveDraft() {
         do {
-            try reviewUseCase.save(&review)
+            try reviewsWithImagesUseCase.save(&review)
         } catch {
             print("❌ ❌ Error: \(error.localizedDescription) ")
         }
@@ -43,7 +43,7 @@ class ReviewsViewModel: ObservableObject {
     @MainActor
     func getDrafts() {
         do {
-            drafts = try reviewUseCase.getDrafts()
+            drafts = try reviewsWithImagesUseCase.getDrafts()
         } catch {
             print("❌ ❌ Error: \(error.localizedDescription) ")
         }
@@ -52,7 +52,7 @@ class ReviewsViewModel: ObservableObject {
     @MainActor
     func removeDraft(at review: Review) {
         do {
-            try reviewUseCase.remove(review)
+            try reviewsWithImagesUseCase.remove(review)
 
             guard let index = drafts.firstIndex(where: { $0.draftID == review.draftID}) else { return }
             drafts.remove(at: index)

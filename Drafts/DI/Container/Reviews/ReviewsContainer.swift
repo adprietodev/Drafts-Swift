@@ -12,7 +12,6 @@ class ReviewsContainer {
     func makeUseCase() -> ReviewUseCase {
         let localDataSource = LocalReviewsDataSource(draftManager: FileSystemDraftsManager())
         let repository = ReviewsRepository(localDataSource: localDataSource)
-        let imageUseCase = ImagesContainer().makeUseCase()
-        return ReviewUseCase(repository: repository, imageUseCase: imageUseCase)
+        return ReviewUseCase(repository: repository)
     }
 }
