@@ -13,56 +13,54 @@ struct ReviewsView: View {
     @State var showCreateDraftReview: Bool = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            HStack {
-                Text("Add Review")
-                    .padding(16)
-            }
-            .onTapGesture {
-                showCreateDraftReview.toggle()
-                viewModel.getReview()
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(Color.black, lineWidth: 1)
-            )
-
-            if showCreateDraftReview {
-                draftPanel
-            }
-
-            VStack(spacing: 16) {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
                 HStack {
-                    updateDraftsButton
-                    Spacer()
+                    Text("Add Review")
+                        .padding(16)
                 }
-                if viewModel.drafts.isEmpty {
-                    Text("No drafts")
-                } else {
-                    Text("Drafts list:")
-                    draftList
+                .onTapGesture {
+                    showCreateDraftReview.toggle()
+                    viewModel.getReview()
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.black, lineWidth: 1)
+                )
+
+                if showCreateDraftReview {
+                    draftPanel
+                }
+
+                VStack(spacing: 16) {
+                    HStack {
+                        updateDraftsButton
+                        Spacer()
+                    }
+                    if viewModel.drafts.isEmpty {
+                        Text("No drafts")
+                    } else {
+                        Text("Drafts list:")
+                        draftList
+                    }
                 }
             }
-            Spacer()
+            .padding(.top, 32)
+            .padding(.horizontal, 16)
         }
         .onAppear {
             viewModel.getDrafts()
         }
         .animation(.easeInOut, value: showCreateDraftReview)
         .transition(.opacity.combined(with: .move(edge: .top)))
-        .padding(.top, 32)
-        .padding(.horizontal, 16)
         .navigationTitle("Reviews")
     }
 
     @ViewBuilder
     var draftList: some View {
-        List {
-            ForEach(viewModel.drafts, id: \.draftID) { draft in
-                draftInfo(draft)
-            }
+        ForEach(viewModel.drafts, id: \.draftID) { draft in
+            draftInfo(draft)
         }
-        .listStyle(.plain)
     }
 
     @ViewBuilder

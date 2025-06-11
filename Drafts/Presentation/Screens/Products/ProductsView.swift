@@ -13,59 +13,57 @@ struct ProductsView: View {
     @State var showCreateDraftProduct: Bool = false
 
     var body: some View {
-        VStack(spacing: 24) {
-            Toggle(isOn: $viewModel.isByUser, label: {
-                Text(viewModel.isByUser ? "With user" : "Without user")
-            })
-            HStack {
-                Text("Add Product")
-                    .padding(16)
-            }
-            .onTapGesture {
-                showCreateDraftProduct.toggle()
-                viewModel.getProduct()
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(Color.black, lineWidth: 1)
-            )
-
-            if showCreateDraftProduct {
-                draftPanel
-            }
-
-            VStack(spacing: 16) {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 24) {
+                Toggle(isOn: $viewModel.isByUser, label: {
+                    Text(viewModel.isByUser ? "With user" : "Without user")
+                })
                 HStack {
-                    updateDraftsButton
-                    Spacer()
+                    Text("Add Product")
+                        .padding(16)
                 }
-                if viewModel.drafts.isEmpty {
-                    Text("No drafts")
-                } else {
-                    Text("Drafts list:")
-                    draftList
+                .onTapGesture {
+                    showCreateDraftProduct.toggle()
+                    viewModel.getProduct()
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.black, lineWidth: 1)
+                )
+
+                if showCreateDraftProduct {
+                    draftPanel
+                }
+
+                VStack(spacing: 16) {
+                    HStack {
+                        updateDraftsButton
+                        Spacer()
+                    }
+                    if viewModel.drafts.isEmpty {
+                        Text("No drafts")
+                    } else {
+                        Text("Drafts list:")
+                        draftList
+                    }
                 }
             }
-            Spacer()
+            .padding(.top, 32)
+            .padding(.horizontal, 16)
         }
         .onAppear {
             viewModel.getDrafts()
         }
         .animation(.easeInOut, value: showCreateDraftProduct)
         .transition(.opacity.combined(with: .move(edge: .top)))
-        .padding(.top, 32)
-        .padding(.horizontal, 16)
         .navigationTitle("Products")
     }
 
     @ViewBuilder
     var draftList: some View {
-        List {
-            ForEach(viewModel.drafts, id: \.draftID) { draft in
-                draftInfo(draft)
-            }
+        ForEach(viewModel.drafts, id: \.draftID) { draft in
+            draftInfo(draft)
         }
-        .listStyle(.plain)
     }
 
     @ViewBuilder

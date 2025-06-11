@@ -25,7 +25,6 @@ class ProductsViewModel: ObservableObject {
     @MainActor
     func onAppear() {
         getDrafts()
-
     }
 
     @MainActor
