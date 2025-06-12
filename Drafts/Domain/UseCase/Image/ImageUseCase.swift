@@ -19,7 +19,7 @@ class ImageUseCase: ImageUseCaseProtocol {
 
     // MARK: - Function
     func buildImagePath(_ image: Data?, in folderURL: URL, with name: String, imageExtension: Constants.Image.Extension = .jpg) throws -> String {
-        try repository.buildImagePath(image, in: folderURL, with: name, imageExtension: imageExtension)
+        try repository.buildImagePath(image, in: folderURL, with: name, extensionImage: imageExtension)
     }
 
     func loadImage(with path: String?) throws -> Data? {

@@ -10,7 +10,9 @@ import Foundation
 
 class ImagesContainer {
     func makeUseCase() -> ImageUseCase {
-        let localDataSource = LocalImagesDataSource()
+        let fileSystemService = FileSystemService()
+        let imagePathBuilder = ImagePathBuilder(fileSystemService: fileSystemService)
+        let localDataSource = LocalImagesDataSource(fileSystemService: fileSystemService, pathBuilder: imagePathBuilder)
         let repository = ImagesRepository(localDataSource: localDataSource)
         return ImageUseCase(repository: repository)
     }

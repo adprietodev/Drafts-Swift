@@ -18,19 +18,19 @@ class ImagesRepository: ImageRepositoryProtocol {
     }
 
     // MARK: - Functions
-    func buildImagePath(_ image: Data?, in folderURL: URL, with name: String, imageExtension: Constants.Image.Extension) throws -> String {
-        try localDataSource.buildImagePath(image, in: folderURL, with: name, imageExtension: imageExtension)
+    func buildImagePath(_ image: Data?, in folderURL: URL, with name: String, extensionImage: Constants.Image.Extension) throws -> String {
+        try localDataSource.buildImagePath(image, in: folderURL, with: name, extensionImage: extensionImage)
     }
 
     func loadImage(with path: String?) throws -> Data? {
-        try localDataSource.loadImage(with: path)
+        try localDataSource.load(from: path)
     }
 
     func removeImage(with path: String) throws {
-        try localDataSource.removeImage(with: path)
+        try localDataSource.remove(at: path)
     }
 
     func removeImageFolder(_ folder: URL) throws {
-        try localDataSource.removeImageFolder(folder)
+        try localDataSource.removeFolder(at: folder)
     }
 }

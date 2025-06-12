@@ -19,3 +19,4 @@ protocol LocalProductsDataSourceProtocol {
     func remove(_ product: LocalProductDTO, at userID: Int) throws
     func buildImageFolder(with name: String, at userID: Int) throws -> URL
 }
+

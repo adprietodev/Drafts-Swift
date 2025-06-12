@@ -8,9 +8,15 @@
 
 import Foundation
 
-protocol LocalImagesDataSourceProtocol {
-    func buildImagePath(_ image: Data?, in folderURL: URL, with name: String, imageExtension: Constants.Image.Extension) throws -> String
-    func loadImage(with path: String?) throws -> Data?
-    func removeImage(with path: String?) throws
-    func removeImageFolder(_ folder: URL) throws
+protocol LocalImagesDataSourceProtocol: ImageStorageProtocol, ImageFolderManagerProtocol {
+}
+
+protocol ImageStorageProtocol {
+    func buildImagePath(_ imageData: Data?, in folderURL: URL, with name: String, extensionImage: Constants.Image.Extension) throws -> String
+    func load(from path: String?) throws -> Data?
+    func remove(at path: String?) throws
+}
+
+protocol ImageFolderManagerProtocol {
+    func removeFolder(at path: URL) throws
 }
