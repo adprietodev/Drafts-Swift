@@ -36,10 +36,8 @@ class LocalImagesDataSource: LocalImagesDataSourceProtocol {
 
         let absolutePath = pathBuilder.buildAbsolutePath(from: path)
 
-
         do {
             let imageData = try Data(contentsOf: absolutePath)
-            ImageLogger.info("Image loaded succesfully")
             return imageData
         } catch {
             ImageLogger.error("Failed to load image: \(error.localizedDescription)")
