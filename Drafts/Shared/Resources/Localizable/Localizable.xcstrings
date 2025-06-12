@@ -10,7 +10,13 @@
     "Add Product" : {
 
     },
+    "Add random draft" : {
+
+    },
     "Add Review" : {
+
+    },
+    "Coches" : {
 
     },
     "Create Draft" : {
@@ -20,6 +26,18 @@
 
     },
     "Drafts list:" : {
+
+    },
+    "Electric" : {
+
+    },
+    "Gasoil" : {
+
+    },
+    "Make: %@" : {
+
+    },
+    "Model: %@" : {
 
     },
     "No drafts" : {
@@ -43,6 +61,9 @@
     "Reviews" : {
 
     },
+    "Update drafts" : {
+
+    },
     "Update Drafts" : {
 
     },
@@ -50,6 +71,9 @@
 
     },
     "Without user" : {
+
+    },
+    "Year: %lld" : {
 
     }
   },

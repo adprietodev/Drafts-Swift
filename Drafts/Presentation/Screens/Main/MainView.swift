@@ -20,6 +20,9 @@ struct MainView: View {
                 NavigationLink("Reseñas") {
                     ReviewsBuilder.build()
                 }
+                NavigationLink("Coches") {
+                    CarBuilder().build()
+                }
             }
         }
     }
