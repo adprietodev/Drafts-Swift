@@ -21,18 +21,18 @@ class LocalReviewsDataSource: LocalReviewsDataSourceProtocol {
 
     // MARK: - Functions
     func getDrafts() throws -> [LocalReviewDTO] {
-        try draftManager.getAllDrafts(with: type)
+        try draftManager.getAll(of: type)
     }
 
     func save(_ review: LocalReviewDTO) throws {
-        try draftManager.save(review, with: type)
+        try draftManager.save(review)
     }
 
     func remove(with id: UUID) throws {
-        try draftManager.removeDraft(with: id, of: type)
+        try draftManager.remove(id: id, of: type)
     }
 
     func buildImageFolder(with name: String) throws -> URL {
-        try draftManager.buildFolderInsideDraftFolder(with: name, of: type)
+        try draftManager.createFolderInsideDraftFolder(name: name, of: type, userID: nil)
     }
 }

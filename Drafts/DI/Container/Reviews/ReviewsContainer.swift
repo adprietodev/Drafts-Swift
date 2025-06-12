@@ -10,7 +10,8 @@ import Foundation
 
 class ReviewsContainer {
     func makeUseCase() -> ReviewUseCase {
-        let localDataSource = LocalReviewsDataSource(draftManager: FileSystemDraftsManager())
+        let fileSystemDraftManager = FileSystemDraftManagerContainer.build()
+        let localDataSource = LocalReviewsDataSource(draftManager: fileSystemDraftManager)
         let repository = ReviewsRepository(localDataSource: localDataSource)
         return ReviewUseCase(repository: repository)
     }

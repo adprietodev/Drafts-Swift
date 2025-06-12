@@ -8,16 +8,23 @@
 
 import Foundation
 
-protocol FileSystemDraftsManagerProtocol {
-    func save<T: Draftable>(_ draft: T, with type: T.Type) throws
-    func getAllDrafts<T: Draftable>(with type: T.Type) throws -> [T]
-    func getDraft<T: Draftable>(with id: UUID, of type: T.Type) throws -> T
-    func removeDraft<T: Draftable>(with id: UUID, of type: T.Type) throws
-    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, of type: T.Type) throws -> URL
+protocol FileSystemDraftsManagerProtocol: DraftManagerProtocol, UserDraftManagerProtocol {
+}
 
-    func save<T: Draftable>(_ draft: T, with type: T.Type, and userID: Int) throws
-    func getAllDrafts<T: Draftable>(with type: T.Type, and userID: Int) throws -> [T]
-    func getDraft<T: Draftable>(with id: UUID, of type: T.Type, and userID: Int) throws -> T
-    func removeDraft<T: Draftable>(with id: UUID, of type: T.Type, and userID: Int) throws
-    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, of type: T.Type, and userID: Int) throws -> URL
+protocol DraftManagerProtocol: FolderManagerProtocol {
+    func save<T: Draftable>(_ draft: T) throws
+    func getAll<T: Draftable>(of type: T.Type) throws -> [T]
+    func get<T: Draftable>(id: UUID, of type: T.Type) throws -> T
+    func remove<T: Draftable>(id: UUID, of type: T.Type) throws
+}
+
+protocol UserDraftManagerProtocol: FolderManagerProtocol {
+    func save<T: Draftable>(_ draft: T, userID: Int) throws
+    func getAll<T: Draftable>(of type: T.Type, userID: Int) throws -> [T]
+    func get<T: Draftable>(id: UUID, of type: T.Type, userID: Int) throws -> T
+    func remove<T: Draftable>(id: UUID, of type: T.Type, userID: Int) throws
+}
+
+protocol FolderManagerProtocol {
+    func createFolderInsideDraftFolder<T: Draftable>(name: String, of type: T.Type, userID: Int?) throws -> URL
 }

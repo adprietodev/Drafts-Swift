@@ -10,7 +10,8 @@ import Foundation
 
 class ProductsContainer {
     func makeUseCase() -> ProductsUseCase {
-        let localDataSource = LocalProductsDataSource(draftManager: FileSystemDraftsManager())
+        let fileSystemDraftManager = FileSystemDraftManagerContainer.build()
+        let localDataSource = LocalProductsDataSource(draftManager: fileSystemDraftManager)
         let repository = ProductsRepository(localDataSource: localDataSource)
         return ProductsUseCase(repository: repository)
     }

@@ -21,34 +21,34 @@ class LocalProductsDataSource: LocalProductsDataSourceProtocol {
 
     // MARK: - Functions
     func getDrafts() throws -> [LocalProductDTO] {
-        try draftManager.getAllDrafts(with: type)
+        try draftManager.getAll(of: type)
     }
 
     func save(_ product: LocalProductDTO) throws {
-        try draftManager.save(product, with: type)
+        try draftManager.save(product)
     }
 
     func remove(_ product: LocalProductDTO) throws {
-        try draftManager.removeDraft(with: product.id, of: type)
+        try draftManager.remove(id: product.id, of: type)
     }
 
     func buildImageFolder(with name: String) throws -> URL {
-        try draftManager.buildFolderInsideDraftFolder(with: name, of: type)
+        try draftManager.createFolderInsideDraftFolder(name: name, of: type, userID: nil)
     }
 
     func getDrafts(by userID: Int) throws -> [LocalProductDTO] {
-        try draftManager.getAllDrafts(with: type, and: userID)
+        try draftManager.getAll(of: type, userID: userID)
     }
 
     func save(_ product: LocalProductDTO, at userID: Int) throws {
-        try draftManager.save(product, with: type, and: userID)
+        try draftManager.save(product, userID: userID)
     }
 
     func remove(_ product: LocalProductDTO, at userID: Int) throws {
-        try draftManager.removeDraft(with: product.id, of: type, and: userID)
+        try draftManager.remove(id: product.id, of: type, userID: userID)
     }
 
     func buildImageFolder(with name: String, at userID: Int) throws -> URL {
-        try draftManager.buildFolderInsideDraftFolder(with: name, of: type, and: userID)
+        try draftManager.createFolderInsideDraftFolder(name: name, of: type, userID: userID)
     }
 }

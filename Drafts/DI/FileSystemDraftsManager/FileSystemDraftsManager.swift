@@ -10,236 +10,150 @@ import Foundation
 
 class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
     // MARK: - Properties
-    private let fileManager: FileManager
+    private let fileSystemService: FileSystemServiceProtocol
+    private let jsonService: JSONServiceProtocol
+    private let pathBuilder: PathBuilderProtocol
 
     // MARK: - Init
-    init(fileManager: FileManager = .default) {
-        self.fileManager = fileManager
+    init(
+        fileSystemService: FileSystemServiceProtocol,
+        jsonService: JSONServiceProtocol,
+        pathBuilder: PathBuilderProtocol
+    ) {
+        self.fileSystemService = fileSystemService
+        self.jsonService = jsonService
+        self.pathBuilder = pathBuilder
     }
 
     // MARK: - Functions
-    func save<T: Draftable>(_ draft: T, with type: T.Type) throws {
-        var drafts = try getAllDrafts(with: type)
-
-        if drafts.contains(where: { $0.id == draft.id }) {
-            print("⚙️ 📄 Updating draft review ")
-            try update(draft: draft, at: &drafts, with: type)
-        } else {
-            print("⚙️ 📄 Adding draft review ")
-            try add(draft: draft, at: &drafts, with: type)
-        }
-    }
-
-    func getAllDrafts<T: Draftable>(with type: T.Type) throws -> [T] {
-        let fileURL = try buildDraftFileURL(with: type)
-
-        if !fileManager.fileExists(atPath: fileURL.path) {
-            return []
-        }
-
-        guard let data = try? Data(contentsOf: fileURL) else {
-            throw LocalError.failureLoad
-        }
-
-        do {
-            let drafts = try JSONDecoder().decode([T].self, from: data)
-            return drafts.reversed()
-        } catch {
-            print("❌ 📄 Failure to get drafts \(String(describing: T.self))")
-            print("❌ ❌ Error: \(error)")
-            throw LocalError.failureDecode
-        }
-    }
-
-    func getDraft<T: Draftable>(with id: UUID, of type: T.Type) throws -> T {
-        let drafts = try getAllDrafts(with: type)
-        guard let draft = drafts.first(where: { $0.id == id }) else {
-            throw LocalError.failureLoad
-        }
-        return draft
-    }
-
-    func removeDraft<T: Draftable>(with id: UUID, of type: T.Type) throws {
-        var drafts = try getAllDrafts(with: type)
-        guard let index = drafts.firstIndex(where: { $0.id == id }) else {
-            print("❌ 📄 Failure draft not found with id: \(id)")
-            throw LocalError.notFoundUUID
-        }
-
-        drafts.remove(at: index)
-        print("✅ 📄 Removed succesfull draft \(type)")
-        try updateAll(drafts, with: type)
-    }
-
-    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, of type: T.Type) throws -> URL {
-        let draftFolder = try buildDraftFolderURLInDocuments(with: type)
+    func createFolderInsideDraftFolder<T>(name: String, of type: T.Type, userID: Int? = nil) throws -> URL where T : Draftable {
+        let context = DraftContext(userID: userID)
+        let draftFolder = try pathBuilder.buildDraftFolderURL(for: type, context: context)
         let newFolder = draftFolder.appendingPathComponent(name)
 
-        if !fileManager.fileExists(atPath: newFolder.path) {
-            try createFolder(newFolder)
+        if !fileSystemService.fileExists(at: newFolder) {
+            try fileSystemService.createDirectory(at: newFolder)
         }
 
         return newFolder
     }
 }
 
-// MARK: - Differentiation between user drafts
+// MARK: - DraftManagerProtocol
 extension FileSystemDraftsManager {
-    func save<T: Draftable>(_ draft: T, with type: T.Type, and userID: Int) throws {
-        var drafts = try getAllDrafts(with: type, and: userID)
-
-        if drafts.contains(where: { $0.id == draft.id }) {
-            print("⚙️ 📄 Updating draft review ")
-            try update(draft: draft, at: &drafts, with: type, and: userID)
-        } else {
-            print("⚙️ 📄 Adding draft review ")
-            try add(draft: draft, at: &drafts, with: type, and: userID)
-        }
+    func save<T>(_ draft: T) throws where T : Draftable {
+        try perfomSave(draft, context: .init())
     }
 
-    func getAllDrafts<T: Draftable>(with type: T.Type, and userID: Int) throws -> [T] {
-        let fileURL = try buildDraftFileURL(with: type, and: userID)
+    func getAll<T>(of type: T.Type) throws -> [T] where T : Draftable {
+        try performGetAll(of: type, context: .init())
+    }
 
-        if !fileManager.fileExists(atPath: fileURL.path) {
+    func get<T>(id: UUID, of type: T.Type) throws -> T where T : Draftable {
+        try performGet(id: id, of: type, context: .init())
+    }
+
+    func remove<T>(id: UUID, of type: T.Type) throws where T : Draftable {
+        try performRemove(id: id, of: type, context: .init())
+    }
+}
+
+// MARK: - UserDraftManagerProtocol
+extension FileSystemDraftsManager {
+    func save<T>(_ draft: T, userID: Int) throws where T : Draftable {
+        try perfomSave(draft, context: .init(userID: userID))
+    }
+
+    func getAll<T>(of type: T.Type, userID: Int) throws -> [T] where T : Draftable {
+        try performGetAll(of: type, context: .init(userID: userID))
+    }
+
+    func get<T>(id: UUID, of type: T.Type, userID: Int) throws -> T where T : Draftable {
+        try performGet(id: id, of: type, context: .init(userID: userID))
+    }
+
+    func remove<T>(id: UUID, of type: T.Type, userID: Int) throws where T : Draftable {
+        try performRemove(id: id, of: type, context: .init(userID: userID))
+    }
+}
+
+// MARK: - Private functions
+private extension FileSystemDraftsManager {
+    func perfomSave<T: Draftable>(_ draft: T, context: DraftContext) throws {
+        var drafts = try performGetAll(of: T.self, context: context)
+
+        if let existingIndex = drafts.firstIndex(where: { $0.id == draft.id }) {
+            DraftLogger.info("Updating draft")
+            drafts[existingIndex] = draft
+        } else {
+            DraftLogger.info("Adding new draft")
+            drafts.append(draft)
+        }
+
+        try saveDrafts(drafts, context: context)
+        DraftLogger.success("Draft saved successfully")
+    }
+
+    func performGetAll<T: Draftable>(of type: T.Type, context: DraftContext) throws -> [T] {
+        let fileURL = try pathBuilder.buildDraftFileURL(for: type, context: context)
+
+        guard fileSystemService.fileExists(at: fileURL) else {
             return []
         }
 
         guard let data = try? Data(contentsOf: fileURL) else {
-            throw LocalError.failureLoad
+            throw DraftError.failureLoad
         }
 
-        do {
-            let drafts = try JSONDecoder().decode([T].self, from: data)
-            return drafts.reversed()
-        } catch {
-            print("❌ 📄 Failure to get drafts \(String(describing: T.self))")
-            print("❌ ❌ Error: \(error)")
-            throw LocalError.failureDecode
-        }
+        let drafts = try jsonService.decode([T].self, from: data)
+        return drafts.reversed()
     }
 
-    func getDraft<T: Draftable>(with id: UUID, of type: T.Type, and userID: Int) throws -> T {
-        let drafts = try getAllDrafts(with: type, and: userID)
-        guard let draft = drafts.first(where: { $0.id == id }) else {
-            throw LocalError.failureLoad
+    func performGet<T: Draftable>(id: UUID, of type: T.Type, context: DraftContext) throws -> T {
+        let drafts = try performGetAll(of: type, context: context)
+
+        guard let draft = drafts.first(where: { $0.id == id}) else {
+            throw DraftError.notFoundUUID
         }
+
         return draft
     }
 
-    func removeDraft<T: Draftable>(with id: UUID, of type: T.Type, and userID: Int) throws {
-        var drafts = try getAllDrafts(with: type, and: userID)
+    func performRemove<T: Draftable>(id: UUID, of type: T.Type, context: DraftContext) throws {
+        var drafts = try performGetAll(of: type, context: context)
+
         guard let index = drafts.firstIndex(where: { $0.id == id }) else {
-            print("❌ 📄 Failure draft not found with id: \(id)")
-            throw LocalError.notFoundUUID
+            DraftLogger.error("Draft not found with id: \(id)")
+            throw DraftError.notFoundUUID
         }
 
         drafts.remove(at: index)
-        print("✅ 📄 Removed succesfull draft \(type)")
-        try updateAll(drafts, with: type, and: userID)
+        try saveDrafts(drafts, context: context)
+        DraftLogger.success("Draft removed successfully")
     }
 
-    func buildFolderInsideDraftFolder<T: Draftable>(with name: String, of type: T.Type, and userID: Int) throws -> URL {
-        let draftFolder = try buildDraftFolderURLInDocuments(with: type, and: userID)
-        let newFolder = draftFolder.appendingPathComponent(name)
-
-        if !fileManager.fileExists(atPath: newFolder.path) {
-            try createFolder(newFolder)
-        }
-
-        return newFolder
-    }
-}
-
-// MARK: - Private extension
-private extension FileSystemDraftsManager {
-    func update<T: Draftable>(draft: T, at drafts: inout [T], with type: T.Type, and userID: Int? = nil) throws {
-        if let userID {
-            try removeDraft(with: draft.id, of: type, and: userID)
-        } else {
-            try removeDraft(with: draft.id, of: type)
-        }
-        drafts.append(draft)
-        try updateAll(drafts, with: type, and: userID)
-        print("✅ 📄 Update succesfull draft \(type)")
-    }
-
-    func add<T: Draftable>(draft: T, at drafts: inout [T], with type: T.Type, and userID: Int? = nil) throws {
-        drafts.append(draft)
-        try updateAll(drafts, with: type, and: userID)
-        print("✅ 📄 Add succesfull draft \(type)")
-    }
-
-    func createFolder(_ folder: URL) throws {
-        do {
-            try fileManager.createDirectory(at: folder, withIntermediateDirectories: true)
-        } catch {
-            throw LocalError.errorCreateFolder
-        }
-    }
-
-    func buildDraftFolderURLInDocuments<T: Draftable>(with type: T.Type, and userID: Int? = nil) throws -> URL {
-        let draftFolder = try buildDraftFolder(with: String(describing: T.self), and: userID)
-
-        guard let documents = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            throw LocalError.draftFolder
-        }
-
-        let draftFolderURL = documents.appendingPathComponent(draftFolder)
-
-        if !fileManager.fileExists(atPath: draftFolderURL.path) {
-            try createFolder(draftFolderURL)
-        }
-
-        return draftFolderURL
-    }
-
-    func buildDraftFolder(with draftName: String, and userID: Int?) throws -> String {
-        guard let bundle = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") else {
-            return ""
-        }
-
-        if let userID {
-            return "\(bundle)/Drafts_\(draftName)/User_\(userID)"
-        } else {
-            return "\(bundle)/Drafts_\(draftName)"
-        }
-    }
-
-    func updateAll<T: Draftable>(_ drafts: [T], with type: T.Type, and userID: Int? = nil) throws {
-        let fileURL = try buildDraftFileURL(with: type, and: userID)
+    func saveDrafts<T: Draftable>(_ drafts: [T], context: DraftContext) throws {
+        let fileURL = try pathBuilder.buildDraftFileURL(for: T.self, context: context)
 
         guard !drafts.isEmpty else {
-            do {
-                try removeDraftFile(fileURL)
-                print("✅ 📄 Remove succesfull drafts file")
-                return
-            } catch {
-                print("❌ 📄 Failure remove drafts file")
-                throw LocalError.failureRemoveFolder
-            }
+            try clearEmptyDraftFile(at: fileURL)
+            return
         }
 
-        guard let data = try? JSONEncoder().encode(drafts) else {
-            throw LocalError.failureEncode
-        }
+        let data = try jsonService.encode(drafts)
 
         do {
             try data.write(to: fileURL, options: .atomic)
-            print("✅ 📄 Update succesfull drafts \(type)")
         } catch {
-            print("❌ 📄 Failure save drafts")
-            print("❌ ❌ Error: \(error)")
-            throw LocalError.failureSave
+            DraftLogger.error("Failed to save drafts: \(error.localizedDescription)")
+            throw DraftError.failureSave
         }
     }
 
-    func removeDraftFile(_ file: URL) throws {
-        try fileManager.removeItem(at: file)
-    }
-
-    func buildDraftFileURL<T: Draftable>(with type: T.Type, and userID: Int? = nil) throws -> URL {
-        let draftFilename = "drafts.json"
-        let draftFolder = try buildDraftFolderURLInDocuments(with: type, and: userID)
-        return draftFolder.appendingPathComponent(draftFilename)
-    }
+    func clearEmptyDraftFile(at fileURL: URL) throws {
+            if fileSystemService.fileExists(at: fileURL) {
+                try fileSystemService.removeItem(at: fileURL)
+                DraftLogger.success("Empty draft file removed")
+            }
+        }
 }
