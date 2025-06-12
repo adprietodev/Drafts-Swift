@@ -51,4 +51,16 @@ class CarViewModel: ObservableObject {
             }
         }
     }
+
+    @MainActor
+    func removeDraft(with id: UUID) {
+        Task {
+            do {
+                try carUseCases.removeDraft(with: id)
+                getDrafts()
+            } catch {
+                print("Error: \(error.localizedDescription)")
+            }
+        }
+    }
 }
