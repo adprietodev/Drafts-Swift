@@ -26,7 +26,7 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
     }
 
     // MARK: - Functions
-    func createFolderInsideDraftFolder<T>(name: String, of type: T.Type, userID: Int? = nil) throws -> URL where T : Draftable {
+    func createFolderInsideDraftFolder<T: Draftable>(name: String, of type: T.Type, userID: Int? = nil) throws -> URL {
         let context = DraftContext(userID: userID)
         let draftFolder = try pathBuilder.buildDraftFolderURL(for: type, context: context)
         let newFolder = draftFolder.appendingPathComponent(name)
@@ -41,38 +41,38 @@ class FileSystemDraftsManager: FileSystemDraftsManagerProtocol {
 
 // MARK: - DraftManagerProtocol
 extension FileSystemDraftsManager {
-    func save<T>(_ draft: T) throws where T : Draftable {
+    func save<T: Draftable>(_ draft: T) throws {
         try perfomSave(draft, context: .init())
     }
 
-    func getAll<T>(of type: T.Type) throws -> [T] where T : Draftable {
+    func getAll<T: Draftable>(of type: T.Type) throws -> [T] {
         try performGetAll(of: type, context: .init())
     }
 
-    func get<T>(id: UUID, of type: T.Type) throws -> T where T : Draftable {
+    func get<T: Draftable>(id: UUID, of type: T.Type) throws -> T {
         try performGet(id: id, of: type, context: .init())
     }
 
-    func remove<T>(id: UUID, of type: T.Type) throws where T : Draftable {
+    func remove<T: Draftable>(id: UUID, of type: T.Type) throws {
         try performRemove(id: id, of: type, context: .init())
     }
 }
 
 // MARK: - UserDraftManagerProtocol
 extension FileSystemDraftsManager {
-    func save<T>(_ draft: T, userID: Int) throws where T : Draftable {
+    func save<T: Draftable>(_ draft: T, userID: Int) throws {
         try perfomSave(draft, context: .init(userID: userID))
     }
 
-    func getAll<T>(of type: T.Type, userID: Int) throws -> [T] where T : Draftable {
+    func getAll<T: Draftable>(of type: T.Type, userID: Int) throws -> [T] {
         try performGetAll(of: type, context: .init(userID: userID))
     }
 
-    func get<T>(id: UUID, of type: T.Type, userID: Int) throws -> T where T : Draftable {
+    func get<T: Draftable>(id: UUID, of type: T.Type, userID: Int) throws -> T {
         try performGet(id: id, of: type, context: .init(userID: userID))
     }
 
-    func remove<T>(id: UUID, of type: T.Type, userID: Int) throws where T : Draftable {
+    func remove<T: Draftable>(id: UUID, of type: T.Type, userID: Int) throws {
         try performRemove(id: id, of: type, context: .init(userID: userID))
     }
 }
